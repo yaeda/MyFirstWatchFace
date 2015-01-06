@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.widget.TextView;
@@ -33,6 +34,13 @@ public class MyWatchFace extends Activity {
         }
     };
 
+    private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mBattery.setText(String.valueOf(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) + "%"));
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +53,7 @@ public class MyWatchFace extends Activity {
                 mBattery = (TextView) stub.findViewById(R.id.watch_battery);
                 mTimeInfoReceiver.onReceive(MyWatchFace.this, registerReceiver(null, INTENT_FILTER)); // set the current time
                 registerReceiver(mTimeInfoReceiver, INTENT_FILTER);
+                registerReceiver(mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
             }
         });
     }
@@ -53,5 +62,6 @@ public class MyWatchFace extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mTimeInfoReceiver);
+        unregisterReceiver(mBatInfoReceiver);
     }
 }
